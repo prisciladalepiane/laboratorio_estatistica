@@ -1,0 +1,39 @@
+---
+title: "Laboratório de estatística"
+author: "Priscila Dalepiane"
+date: "2022"
+output:
+  html_document:
+    code_folding: hide
+    keep_md: yes
+
+---
+
+```{r,results="markup",warning=FALSE,message=FALSE,error=FALSE}
+
+require(forecast)
+require(highcharter)
+require(tidyverse)
+
+
+```
+
+<a href="https://archive.ics.uci.edu/ml/datasets/Air+Quality"
+target="_blank">Dados fonte</a>
+
+# Descrição dos dados: {-}
+
+O conjunto de dados contém 9358 ocorrências de respostas médias de uma matriz de 5 sensores químicos de óxido de metal incorporados em um dispositivo multisensor químico de qualidade do ar. </br>
+O dispositivo estava localizado no campo em uma área significativamente poluída, a nível rodoviário, dentro de uma cidade italiana. Os dados foram registrados de março de 2004 a fevereiro de 2005 (um ano) representando as mais longas gravações disponíveis livremente de em campo implantados gratuitamente de respostas de dispositivos de sensores químicos de qualidade do ar implantados em campo.
+ As concentrações médias horárias do Ground Truth para CO, Hidrocarbonetos Não Metânicos, Benzeno, Óxidos de Nitrogênio Total (NOx) e Dióxido de Nitrogênio (NO2) foram fornecidas por um analisador certificado de referência colocado. 
+
+
+# Conjunto de dados {-}
+
+
+```{r, echo = TRUE}
+
+air <- readxl::read_excel("C:/Users/USER/Laboratorio/AirQualityUCI/AirQualityUCI.xlsx")
+
+glimpse(air)
+```
