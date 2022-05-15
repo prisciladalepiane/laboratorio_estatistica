@@ -14,19 +14,20 @@ output:
 require(forecast)
 require(highcharter)
 require(tidyverse)
+require(lubridate)
 
 
 ```
 
-<a href="https://archive.ics.uci.edu/ml/datasets/Air+Quality"
-target="_blank">Dados fonte</a>
 
 # Descrição dos dados: {-}
 
 O conjunto de dados contém 9358 ocorrências de respostas médias de uma matriz de 5 sensores químicos de óxido de metal incorporados em um dispositivo multisensor químico de qualidade do ar. </br>
-O dispositivo estava localizado no campo em uma área significativamente poluída, a nível rodoviário, dentro de uma cidade italiana. Os dados foram registrados de março de 2004 a fevereiro de 2005 (um ano) representando as mais longas gravações disponíveis livremente de em campo implantados gratuitamente de respostas de dispositivos de sensores químicos de qualidade do ar implantados em campo.
- As concentrações médias horárias do Ground Truth para CO, Hidrocarbonetos Não Metânicos, Benzeno, Óxidos de Nitrogênio Total (NOx) e Dióxido de Nitrogênio (NO2) foram fornecidas por um analisador certificado de referência colocado. 
-
+O dispositivo estava localizado no campo em uma área significativamente poluída, a nível rodoviário, dentro de uma cidade italiana. Os dados foram registrados de março de 2004 a fevereiro de 2005 (um ano) representando as mais longas gravações disponíveis livremente de em campo implantados gratuitamente de respostas de dispositivos de sensores químicos de qualidade do ar implantados em campo.</br>
+ As concentrações médias horárias do Ground Truth para CO, Hidrocarbonetos Não Metânicos, Benzeno, Óxidos de Nitrogênio Total (NOx) e Dióxido de Nitrogênio (NO2) foram fornecidas por um analisador certificado de referência. </br>
+ 
+<a href="https://archive.ics.uci.edu/ml/machine-learning-databases/00360/"
+target="_blank">database</a>
 
 # Conjunto de dados {-}
 
@@ -35,5 +36,28 @@ O dispositivo estava localizado no campo em uma área significativamente poluíd
 
 air <- readxl::read_excel("C:/Users/USER/Laboratorio/AirQualityUCI/AirQualityUCI.xlsx")
 
+air <- air %>% mutate(Date = date(Date), Time = hour(Time))
+
 glimpse(air)
 ```
+
+# Variáveis {-}
+
+Date: Data (DD/MM/YYYY)
+Time: Hora (HH.MM.SS)
+CO(GT): True hourly averaged concentration CO in mg/m^3 (reference analyzer)
+PT08.S1: (tin oxide) hourly averaged sensor response (nominally CO targeted)
+NMHC(GT): True hourly averaged overall Non Metanic HydroCarbons concentration in microg/m^3 (reference analyzer)
+C6H6(GT): True hourly averaged Benzene concentration in microg/m^3 (reference analyzer)
+PT08.S2(NMHC): (titania) hourly averaged sensor response (nominally NMHC targeted)
+NO2(GT): True hourly averaged NOx concentration in ppb (reference analyzer)
+PT08.S3(NOx): (tungsten oxide) hourly averaged sensor response (nominally NOx targeted)
+NO2(GT): True hourly averaged NO2 concentration in microg/m^3 (reference analyzer)
+PT08.S4(NO2): (tungsten oxide) hourly averaged sensor response (nominally NO2 targeted)
+PT08.S5(O3): (indium oxide) hourly averaged sensor response (nominally O3 targeted)
+T: Temperature in Â°C
+RH: Relative Humidity (%)
+AH: AH Absolute Humidity
+
+
+
