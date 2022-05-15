@@ -1,0 +1,239 @@
+---
+title: "Laboratório de estatística"
+author: "Priscila Dalepiane"
+date: "2022"
+output:
+  html_document:
+    code_folding: hide
+    keep_md: yes
+
+---
+
+```{r,results="markup",warning=FALSE,message=FALSE,error=FALSE}
+
+# Pacotes
+#devtools::install_github("renkun-ken/formattable")
+
+library(tidyverse)
+library(formattable)
+
+```
+
+
+# Introdução: {-}
+
+A Covid-19 é uma infecão respiratória aguda causada pelo coronavírus
+SARS-CoV-2, potencialmente grave, de elevada transmissibilidade e de distribuição global.
+No ano de 2021 foram registrados 579.663 casos de covid-19 em Mato
+Grosso, com 13.892 casos de mortes.
+
+## Descrição dos dados: {-}
+
+Dados referentes a casos notificados de covid-19 em Mato Grosso, no ano de 2021.
+
+ 
+Fonte: <a href="http://www.saude.mt.gov.br/painelcovidmt2/"
+target="_blank">Secretaria de Estado de Saúde de Mato Grosso </a>
+
+# Conjunto de dados {-}
+
+
+```{r, echo = TRUE}
+
+dados_corona_total <- readxl::read_excel("C:/Users/USER/Laboratorio/Corona/dados_corona.xlsx")
+
+glimpse(dados_corona_total)
+```
+
+
+```{r, results="markup",warning=FALSE,message=FALSE,error=FALSE}
+
+# Ajuste dos dados
+dados_corona_total <- dados_corona_total %>% 
+  mutate(idade = as.numeric(idade),
+         ProfissionalSeguranca = ifelse(ProfissionalSeguranca == 'N?o', 'Não',ProfissionalSeguranca),
+         ProfissionalSaude = ifelse(ProfissionalSaude == 'N?o', 'Não',ProfissionalSaude))
+
+```
+
+# Análises:
+
+```{r}
+# Situação, total de obitos
+a <- dados_corona_total %>% group_by(Situacao) %>%  count() 
+
+DT::datatable(a, options = list(dom = 't'), filter = "none")
+
+```
+
+
+
+```{r,results="markup",warning=FALSE,message=FALSE,error=FALSE}
+
+# Removido os dados faltantes
+dados_corona <- dados_corona_total %>%
+  drop_na(-DataModificacaoObito)
+
+# Calculo de dados faltantes
+a <- dados_corona_total %>% nrow() # Quantidade de casos registrados
+
+b <- dados_corona %>% nrow() # Quantidade sem dados faltantes
+
+b/a*100 # calculo da porcentagem
+```
+
+O conjunto de dados possui 579.663 registros de casos de covid, ao remover os registros
+com informações incompletas, o total é 466.474, que representa 80.47% do total.
+
+
+```{r,echo= TRUE, warning=FALSE,message=FALSE,error=FALSE}
+######## Analise por idade  ########
+
+Idade <- 
+  dados_corona %>% 
+  select(idade) %>% 
+  mutate(FaixaEtaria = ifelse(idade <= 20, "0 a 20",
+                       ifelse(idade > 20 & idade <= 40, "21 a 40",
+                       ifelse(idade > 40 & idade <= 60, "41 a 60",
+                       ifelse(idade > 60 & idade <= 80, "61 a 80", 
+                       ifelse(idade > 80, "mais de 80", " ")))))) %>% 
+            group_by(FaixaEtaria) %>% 
+            summarise(porcentagem = n()/nrow(dados_corona)*100)
+DT::datatable(Idade, options = list(dom = 't'), filter = "none")
+```
+
+
+```{r}
+
+# Histograma de idade
+hist(dados_corona_total$idade, 
+     xlim = c(0,100),
+     xlab = "Idade", 
+     ylab = "Frequencia",
+     main = "Histograma de Casos por Idade")
+
+```
+
+
+
+```{r, echo=TRUE, warning=FALSE,message=FALSE,error=FALSE}
+######## Analise por comorbidade #######
+
+# Porcentagem de comorbidade por sexo
+
+dados_corona %>%
+  group_by(Sexo, Comorbidade) %>% 
+  count() %>% spread(Sexo,n) %>% 
+  arrange(desc(Comorbidade))
+
+# Numero de casos registrados para cada tipo de comorbidade
+
+names(dados_corona)[13:18] #Comorbidades
+
+
+comorbidade <- 
+  dados_corona_total %>%
+  filter(Cardiovascular == 'Sim') %>% 
+  group_by(Sexo, Cardiovascular) %>% 
+  count() %>% 
+  spread(Cardiovascular, n) %>% 
+  rename(Cardiovascular = Sim) 
+
+
+comorbidade <- 
+dados_corona_total %>%
+  filter(Hipertensao == 'Sim') %>% 
+  group_by(Sexo, Hipertensao) %>% 
+  count() %>% 
+  spread(Hipertensao, n) %>% 
+  rename(Hipertensao = Sim) %>% 
+  left_join(comorbidade)
+
+comorbidade <- 
+dados_corona_total %>%
+  filter(Diabetes == 'Sim') %>% 
+  group_by(Sexo, Diabetes) %>% 
+  count() %>% 
+  spread(Diabetes, n) %>% 
+  rename(Diabetes = Sim) %>% 
+  left_join(comorbidade) 
+
+comorbidade <- 
+dados_corona_total %>%
+  filter(Neoplasia == 'Sim') %>% 
+  group_by(Sexo, Neoplasia) %>%
+  count()  %>% 
+  spread(Neoplasia, n) %>% 
+  rename(Neoplasia = Sim) %>% 
+  left_join(comorbidade)
+
+comorbidade <- 
+dados_corona_total %>%
+  filter(Obesidade == 'Sim') %>% 
+  group_by(Sexo,  Obesidade) %>% 
+  count() %>% 
+  spread(Obesidade, n) %>% 
+  rename(Obesidade = Sim) %>% 
+  left_join(comorbidade) 
+
+comorbidade <- 
+  dados_corona_total %>%
+  filter(Pulmonar == 'Sim') %>% 
+  group_by(Sexo,  Pulmonar) %>% 
+  count() %>% 
+  spread(Pulmonar, n) %>% 
+  rename(Pulmonar = Sim) %>% 
+  left_join(comorbidade) 
+
+DT::datatable(comorbidade, options = list(dom = 't'), filter = "none")
+
+```
+
+# Tabelas Cruzadas
+
+Sexo x Situação x Hospitalização
+
+```{r}
+
+# Sexo x Situaçao x Hospitaliza??o
+dados_corona_total %>%
+  filter(!is.na(Situacao)) %>% 
+  group_by(Sexo,Hospitalizado, Situacao) %>%
+  count() %>%  spread(Hospitalizado, n) %>% 
+  DT::datatable( options = list(dom = 't'),filter = "none")
+
+
+```
+
+Profissional da Seguran?a x Situação x Hospitalização
+
+```{r}
+dados_corona %>%
+  group_by(ProfissionalSeguranca,Hospitalizado, Situacao) %>%
+  count() %>%  spread(ProfissionalSeguranca, n) %>% 
+  arrange(desc(Hospitalizado))
+```
+
+Gestantes x Situaçao x Hospitalização
+
+```{r}
+# Gestantes x Situa??o x Hospitaliza??o
+dados_corona %>%
+  group_by(Gestante,Hospitalizado, Situacao) %>%
+  count() %>%  spread(Hospitalizado, n)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
