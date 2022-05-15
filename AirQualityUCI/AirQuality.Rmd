@@ -43,21 +43,34 @@ glimpse(air)
 
 # Variáveis {-}
 
-Date: Data (DD/MM/YYYY)
-Time: Hora (HH.MM.SS)
-CO(GT): True hourly averaged concentration CO in mg/m^3 (reference analyzer)
-PT08.S1: (tin oxide) hourly averaged sensor response (nominally CO targeted)
-NMHC(GT): True hourly averaged overall Non Metanic HydroCarbons concentration in microg/m^3 (reference analyzer)
-C6H6(GT): True hourly averaged Benzene concentration in microg/m^3 (reference analyzer)
-PT08.S2(NMHC): (titania) hourly averaged sensor response (nominally NMHC targeted)
-NO2(GT): True hourly averaged NOx concentration in ppb (reference analyzer)
-PT08.S3(NOx): (tungsten oxide) hourly averaged sensor response (nominally NOx targeted)
-NO2(GT): True hourly averaged NO2 concentration in microg/m^3 (reference analyzer)
-PT08.S4(NO2): (tungsten oxide) hourly averaged sensor response (nominally NO2 targeted)
-PT08.S5(O3): (indium oxide) hourly averaged sensor response (nominally O3 targeted)
-T: Temperature in Â°C
-RH: Relative Humidity (%)
-AH: AH Absolute Humidity
+<strong>Data:</strong> Data (DD/MM/AAAA) </br>
+
+Hora: Hora (HH.MM.SS)
+CO(GT): Concentração média horária real CO em mg/m^3 (analisador de referência)
+
+PT08.S1: (óxido de estanho) resposta média horária do sensor (alvo nominalmente de CO)
+
+NMHC(GT): Concentração média horária real de Hidrocarbonetos Não Metânicos em microg/m^3 (analisador de referência)
+
+C6H6(GT): Concentração média horária real de benzeno em microg/m^3 (analisador de referência)
+
+PT08.S2(NMHC): (titânia) resposta média horária do sensor (alvo nominalmente NMHC)
+
+NO2(GT): Concentração média horária real de NOx em ppb (analisador de referência)
+
+PT08.S3(NOx): (óxido de tungstênio) resposta média horária do sensor (nominalmente direcionado ao NOx)
+
+NO2(GT): Concentração média horária real de NO2 em microg/m^3 (analisador de referência)
+
+PT08.S4(NO2): (óxido de tungstênio) resposta média horária do sensor (nominalmente direcionado ao NO2)
+
+PT08.S5(O3): (óxido de índio) resposta média horária do sensor (alvo nominalmente O3)
+
+T: Temperatura em °C
+
+RH: Umidade Relativa (%)
+
+AH: AH Umidade Absoluta
 
 
 

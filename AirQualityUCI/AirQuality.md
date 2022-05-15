@@ -14,13 +14,18 @@ output:
 require(forecast)
 require(highcharter)
 require(tidyverse)
+require(lubridate)
 ```
 
-<a href="https://archive.ics.uci.edu/ml/datasets/Air+Quality"
-target="_blank">Dados fonte</a>
 
 # Descrição dos dados: {-}
 
+O conjunto de dados contém 9358 ocorrências de respostas médias de uma matriz de 5 sensores químicos de óxido de metal incorporados em um dispositivo multisensor químico de qualidade do ar. </br>
+O dispositivo estava localizado no campo em uma área significativamente poluída, a nível rodoviário, dentro de uma cidade italiana. Os dados foram registrados de março de 2004 a fevereiro de 2005 (um ano) representando as mais longas gravações disponíveis livremente de em campo implantados gratuitamente de respostas de dispositivos de sensores químicos de qualidade do ar implantados em campo.</br>
+ As concentrações médias horárias do Ground Truth para CO, Hidrocarbonetos Não Metânicos, Benzeno, Óxidos de Nitrogênio Total (NOx) e Dióxido de Nitrogênio (NO2) foram fornecidas por um analisador certificado de referência. </br>
+ 
+<a href="https://archive.ics.uci.edu/ml/machine-learning-databases/00360/"
+target="_blank">database</a>
 
 # Conjunto de dados {-}
 
@@ -29,14 +34,16 @@ target="_blank">Dados fonte</a>
 ```r
 air <- readxl::read_excel("C:/Users/USER/Laboratorio/AirQualityUCI/AirQualityUCI.xlsx")
 
+air <- air %>% mutate(Date = date(Date), Time = hour(Time))
+
 glimpse(air)
 ```
 
 ```
 ## Rows: 9,357
 ## Columns: 15
-## $ Date            <dttm> 2004-03-10, 2004-03-10, 2004-03-10, 2004-03-10, 2004-~
-## $ Time            <dttm> 1899-12-31 18:00:00, 1899-12-31 19:00:00, 1899-12-31 ~
+## $ Date            <date> 2004-03-10, 2004-03-10, 2004-03-10, 2004-03-10, 2004-~
+## $ Time            <int> 18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ~
 ## $ `CO(GT)`        <dbl> 2.6, 2.0, 2.2, 2.2, 1.6, 1.2, 1.2, 1.0, 0.9, 0.6, -200~
 ## $ `PT08.S1(CO)`   <dbl> 1360.00, 1292.25, 1402.00, 1375.50, 1272.25, 1197.00, ~
 ## $ `NMHC(GT)`      <dbl> 150, 112, 88, 80, 51, 38, 31, 31, 24, 19, 14, 8, 16, 2~
@@ -51,3 +58,37 @@ glimpse(air)
 ## $ RH              <dbl> 48.875, 47.700, 53.975, 60.000, 59.575, 59.175, 56.775~
 ## $ AH              <dbl> 0.7577538, 0.7254874, 0.7502391, 0.7867125, 0.7887942,~
 ```
+
+# Variáveis {-}
+
+<strong>Data:</strong> Data (DD/MM/AAAA) </br>
+
+Hora: Hora (HH.MM.SS)
+CO(GT): Concentração média horária real CO em mg/m^3 (analisador de referência)
+
+PT08.S1: (óxido de estanho) resposta média horária do sensor (alvo nominalmente de CO)
+
+NMHC(GT): Concentração média horária real de Hidrocarbonetos Não Metânicos em microg/m^3 (analisador de referência)
+
+C6H6(GT): Concentração média horária real de benzeno em microg/m^3 (analisador de referência)
+
+PT08.S2(NMHC): (titânia) resposta média horária do sensor (alvo nominalmente NMHC)
+
+NO2(GT): Concentração média horária real de NOx em ppb (analisador de referência)
+
+PT08.S3(NOx): (óxido de tungstênio) resposta média horária do sensor (nominalmente direcionado ao NOx)
+
+NO2(GT): Concentração média horária real de NO2 em microg/m^3 (analisador de referência)
+
+PT08.S4(NO2): (óxido de tungstênio) resposta média horária do sensor (nominalmente direcionado ao NO2)
+
+PT08.S5(O3): (óxido de índio) resposta média horária do sensor (alvo nominalmente O3)
+
+T: Temperatura em °C
+
+RH: Umidade Relativa (%)
+
+AH: AH Umidade Absoluta
+
+
+
