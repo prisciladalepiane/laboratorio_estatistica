@@ -15,7 +15,13 @@ output:
 #devtools::install_github("renkun-ken/formattable")
 
 library(tidyverse)
-library(formattable)
+# library(formattable)
+
+
+porcent <- function(x){
+  y = paste(round(x*100,2), '%')
+  return(y)
+}
 
 ```
 
@@ -24,18 +30,16 @@ library(formattable)
 
 A Covid-19 é uma infecão respiratória aguda causada pelo coronavírus
 SARS-CoV-2, potencialmente grave, de elevada transmissibilidade e de distribuição global.
-No ano de 2021 foram registrados 579.663 casos de covid-19 em Mato
-Grosso, com 13.892 casos de mortes.
 
-## Descrição dos dados: {-}
-
-Dados referentes a casos notificados de covid-19 em Mato Grosso, no ano de 2021.
+Os dados são referentes a casos notificados de covid-19 em Mato Grosso, no ano de 2021.
 
  
 Fonte: <a href="http://www.saude.mt.gov.br/painelcovidmt2/"
 target="_blank">Secretaria de Estado de Saúde de Mato Grosso </a>
 
-# Conjunto de dados {-}
+
+
+# Conjunto de dados: {-}
 
 
 ```{r, echo = TRUE}
@@ -43,6 +47,9 @@ target="_blank">Secretaria de Estado de Saúde de Mato Grosso </a>
 dados_corona_total <- readxl::read_excel("C:/Users/USER/Laboratorio/Corona/dados_corona.xlsx")
 
 glimpse(dados_corona_total)
+
+
+dados_corona <- dados_corona_total %>% drop_na(-DataModificacaoObito)
 ```
 
 
@@ -56,79 +63,123 @@ dados_corona_total <- dados_corona_total %>%
 
 ```
 
-# Análises:
+# Situação: {-}
+
+No ano de 2021 foram registrados 579.663 casos de covid-19 em Mato
+Grosso. Desses casos, 94,5% dos infectados foram recuperados, 2,4% morreram
+por causa da doença.
 
 ```{r}
 # Situação, total de obitos
-a <- dados_corona_total %>% group_by(Situacao) %>%  count() 
+
+total <- nrow(dados_corona_total)
+
+a <- dados_corona_total %>%
+  group_by(Situacao) %>%
+  summarise(n = n(), '%' = porcent(n/total)) 
 
 DT::datatable(a, options = list(dom = 't'), filter = "none")
 
 ```
 
 
+# Analise por Idade: {-}
 
-```{r,results="markup",warning=FALSE,message=FALSE,error=FALSE}
-
-# Removido os dados faltantes
-dados_corona <- dados_corona_total %>%
-  drop_na(-DataModificacaoObito)
-
-# Calculo de dados faltantes
-a <- dados_corona_total %>% nrow() # Quantidade de casos registrados
-
-b <- dados_corona %>% nrow() # Quantidade sem dados faltantes
-
-b/a*100 # calculo da porcentagem
-```
-
-O conjunto de dados possui 579.663 registros de casos de covid, ao remover os registros
-com informações incompletas, o total é 466.474, que representa 80.47% do total.
-
-
+### Tabela 1: Numero de casos e óbitos por Faixa Etária
 ```{r,echo= TRUE, warning=FALSE,message=FALSE,error=FALSE}
 ######## Analise por idade  ########
 
-Idade <- 
-  dados_corona %>% 
+morte <- dados_corona_total %>% filter(Situacao == "Óbito", !is.null(idade))
+
+
+morte_idade <- 
+  morte %>% 
+  filter(!is.null(idade)) %>% 
   select(idade) %>% 
-  mutate(FaixaEtaria = ifelse(idade <= 20, "0 a 20",
+  mutate(FaixaEtaria = ifelse(idade >= 0 & idade <= 20, "0 a 20",
                        ifelse(idade > 20 & idade <= 40, "21 a 40",
                        ifelse(idade > 40 & idade <= 60, "41 a 60",
                        ifelse(idade > 60 & idade <= 80, "61 a 80", 
-                       ifelse(idade > 80, "mais de 80", " ")))))) %>% 
+                             "mais de 80"))))) %>% 
             group_by(FaixaEtaria) %>% 
-            summarise(porcentagem = n()/nrow(dados_corona)*100)
-DT::datatable(Idade, options = list(dom = 't'), filter = "none")
+            summarise(n_obitos = n(), '%' = porcent(n()/nrow(morte)))
+
+idade_casos <- 
+  dados_corona_total %>% 
+  filter(!is.null(idade)) %>% 
+  select(idade) %>% 
+  mutate(FaixaEtaria = ifelse(idade >= 0 & idade <= 20, "0 a 20",
+                       ifelse(idade > 20 & idade <= 40, "21 a 40",
+                       ifelse(idade > 40 & idade <= 60, "41 a 60",
+                       ifelse(idade > 60 & idade <= 80, "61 a 80", 
+                        "mais de 80"))))) %>% 
+            group_by(FaixaEtaria) %>% 
+            summarise(n_casos = n(), '% ' = porcent(n()/total))
+
+idade <- idade_casos %>% left_join(morte_idade, by = "FaixaEtaria")
+
+idade1 <- idade %>% rename('nº de casos' = n_casos,
+                           'nº de óbitos' =  n_obitos)
+
+DT::datatable(idade1, options = list(dom = 't'), filter = "none")
 ```
 
-
-```{r}
+```{r,  figures-side, fig.show="hold"}
 
 # Histograma de idade
+
+par(mfrow=c(1, 2))
+
 hist(dados_corona_total$idade, 
      xlim = c(0,100),
      xlab = "Idade", 
      ylab = "Frequencia",
      main = "Histograma de Casos por Idade")
 
+hist(morte$idade, 
+     xlim = c(0,100),
+     xlab = "Idade", 
+     ylab = "Frequencia",
+     main = "Histograma de óbitos por Idade")
+
+
+
 ```
 
+### Tabela 2: Porcentagem relativa de mortes por quantidade de casos entre as Faixas Etarias
+```{r,echo= TRUE, warning=FALSE,message=FALSE,error=FALSE}
+
+a <- idade %>% mutate(n = porcent(n_obitos/n_casos)) %>%
+  select(FaixaEtaria, n) %>% 
+  rename("% Obitos" = n)
+  
+
+DT::datatable(a, options = list(dom = 't'), filter = "none", width = "50%")
+
+```
+
+Observa-se um aumento da porcentagem de óbitos causados pelo covid conforme a 
+idade aumenta. A maior porcentagem foi para pessoas com mais de 80 anos, sendo 
+26,4% dos infectados morreram. Enquanto que para menores de 20 anos a porcentagem 
+foi de 0,08%
 
 
+# Comorbidades
+
+### Tabela 3: Número Comorbidades por Sexo
 ```{r, echo=TRUE, warning=FALSE,message=FALSE,error=FALSE}
 ######## Analise por comorbidade #######
 
 # Porcentagem de comorbidade por sexo
-
-dados_corona %>%
-  group_by(Sexo, Comorbidade) %>% 
-  count() %>% spread(Sexo,n) %>% 
-  arrange(desc(Comorbidade))
+# 
+# dados_corona %>%
+#   group_by(Sexo, Comorbidade) %>% 
+#   count() %>% spread(Sexo,n) %>% 
+#   arrange(desc(Comorbidade))
 
 # Numero de casos registrados para cada tipo de comorbidade
 
-names(dados_corona)[13:18] #Comorbidades
+#names(dados_corona)[13:18] #Comorbidades
 
 
 comorbidade <- 
@@ -189,40 +240,47 @@ DT::datatable(comorbidade, options = list(dom = 't'), filter = "none")
 
 ```
 
+### Teste Qui-quadrado Relação Gestante Hospitalização
+
+```{r}
+teste <- dados_corona_total %>%
+  filter(!is.na(Hospitalizado) &!is.na(Gestante)) %>% 
+  group_by(Gestante, Hospitalizado) %>%
+  count() %>% spread(Gestante, n) %>% 
+  rename( Gestante = Sim, 
+          NaoGestante = Não)
+teste
+chisq.test(teste[,2:3])
+```
+
+
+
+
 # Tabelas Cruzadas
 
-Sexo x Situação x Hospitalização
+### Sexo x Situação 
 
 ```{r}
 
 # Sexo x Situaçao x Hospitaliza??o
 dados_corona_total %>%
-  filter(!is.na(Situacao)) %>% 
-  group_by(Sexo,Hospitalizado, Situacao) %>%
-  count() %>%  spread(Hospitalizado, n) %>% 
-  DT::datatable( options = list(dom = 't'),filter = "none")
+  filter(!is.na(Situacao)) %>%
+  group_by(Sexo,  Situacao) %>%
+  count() %>%  spread(Sexo, n) %>%
+  DT::datatable(options = list(dom = 't'), filter = "none") 
 
 
 ```
 
-Profissional da Seguran?a x Situação x Hospitalização
-
+### Profissional da Segurança x  Hospitalização
 ```{r}
-dados_corona %>%
-  group_by(ProfissionalSeguranca,Hospitalizado, Situacao) %>%
-  count() %>%  spread(ProfissionalSeguranca, n) %>% 
-  arrange(desc(Hospitalizado))
+dados_corona_total %>%
+  filter(!is.na(Hospitalizado) & !is.na(ProfissionalSeguranca)) %>% 
+  group_by(ProfissionalSeguranca, Hospitalizado) %>%
+  count() %>%  spread(ProfissionalSeguranca, n) %>%
+  arrange(desc(Hospitalizado)) %>%
+  DT::datatable(options = list(dom = 't'), filter = "none")
 ```
-
-Gestantes x Situaçao x Hospitalização
-
-```{r}
-# Gestantes x Situa??o x Hospitaliza??o
-dados_corona %>%
-  group_by(Gestante,Hospitalizado, Situacao) %>%
-  count() %>%  spread(Hospitalizado, n)
-```
-
 
 
 

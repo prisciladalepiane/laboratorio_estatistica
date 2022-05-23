@@ -1,0 +1,11 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/903031/336a2f2800bd47a0ad3e57f125a8eeed
+bundleId: https://api.rpubs.com/api/v1/document/903031/336a2f2800bd47a0ad3e57f125a8eeed
+url: http://rpubs.com/prisciladalepiane/903031
+when: 1653260645.27103
+lastSyncTime: 1653260645.27103

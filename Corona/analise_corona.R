@@ -1,29 +1,26 @@
 # Universidade Federal de Mato Grosso
 # Aluna: Priscila Dalepiane
-# Disciplina: Laboratório de estatística
+# Disciplina: Laborat?rio de estat?stica
 
-
-# Diretório
-setwd("C:\\Users\\USER\\OneDrive\\UFMT\\LABORATORIO\\Corona")
 
 # Pacotes
 library(tidyverse)
 library(readxl)
 
 # Leitura de dados
-dados_corona_total <- read_excel("dados_corona.xlsx")
+dados_corona_total <- read_excel("Corona/dados_corona.xlsx")
 
 glimpse(dados_corona_total)
 
-# Peridodo de análise
+# Peridodo de analise
 min(dados_corona_total$DataNotificacao)
 max(dados_corona_total$DataNotificacao)
 
 # Ajuste dos dados
 dados_corona_total <- dados_corona_total %>% 
   mutate(idade = as.numeric(idade),
-         ProfissionalSeguranca = ifelse(ProfissionalSeguranca == 'N?o', 'Não',ProfissionalSeguranca),
-         ProfissionalSaude = ifelse(ProfissionalSaude == 'N?o', 'Não',ProfissionalSaude))
+         ProfissionalSeguranca = ifelse(ProfissionalSeguranca == 'N?o', 'NÃ£o',ProfissionalSeguranca),
+         ProfissionalSaude = ifelse(ProfissionalSaude == 'N?o', 'NÃ£o',ProfissionalSaude))
 
 # Removido os dados faltantes
 dados_corona <- dados_corona_total %>%
@@ -37,7 +34,7 @@ b <- dados_corona %>% nrow(); b # Quantidade sem dados faltantes
 b/a*100 # calculo da porcentagem
 
 
-# Situação, total de obitos
+# SituaÃ§ao, total de obitos
 dados_corona_total %>% group_by(Situacao) %>%  count()
 
 ######## Analise por idade  ########
@@ -53,6 +50,9 @@ Idade <-
             group_by(FaixaEtaria) %>% 
             summarise(porcentagem = n()/nrow(dados_corona)*100)
 Idade
+
+
+esquisse::esquisser(dados_corona_total)
 
 # Histograma de idade
 hist(dados_corona_total$idade, 
@@ -134,7 +134,7 @@ comorbidade
 comorbidade[,2:7] %>% colSums()
 
 ######## Tabelas cruzadas ###############   
-# Sexo x Situação x Hospitalização
+# Sexo x Situa??o x Hospitaliza??o
 dados_corona_total %>%
   filter(!is.na(Situacao)) %>% 
   group_by(Sexo,Hospitalizado, Situacao) %>%
@@ -145,40 +145,40 @@ dados_corona_total %>%
   group_by(Hospitalizado, Situacao) %>%
   count() 
 
-# Profissional da Saúde x Situação x Hospitalização
+# Profissional da Sa?de x Situa??o x Hospitaliza??o
 dados_corona %>%
   group_by(ProfissionalSaude, Hospitalizado, Situacao) %>%
   count() %>% spread(Situacao , n) %>% 
   arrange(desc(Hospitalizado))
 
-# Profissional da Segurança x Situação x Hospitalização
+# Profissional da Seguran?a x Situa??o x Hospitaliza??o
 dados_corona %>%
   group_by(ProfissionalSeguranca,Hospitalizado, Situacao) %>%
   count() %>%  spread(ProfissionalSeguranca, n) %>% 
   arrange(desc(Hospitalizado))
 
-# Gestantes x Situação x Hospitalização
+# Gestantes x Situa??o x Hospitaliza??o
 dados_corona %>%
   group_by(Gestante,Hospitalizado, Situacao) %>%
   count() %>%  spread(Hospitalizado, n)
 
-# Gestante x Comorbidade x Situação
+# Gestante x Comorbidade x Situa??o
 dados_corona %>%
   group_by(Gestante,Comorbidade, Situacao) %>%
   count()
 
 
-# Gestante x Comorbidade x Hospitalização
+# Gestante x Comorbidade x Hospitaliza??o
 dados_corona %>%
   group_by(Gestante,Comorbidade, Hospitalizado) %>%
   count() 
 
-# Gestante x Comorbidade x Hospitalização
+# Gestante x Comorbidade x Hospitaliza??o
 teste <- dados_corona %>%
   group_by(Gestante, Hospitalizado) %>%
   count() %>% spread(Gestante, n) %>% 
   rename( Gestante = Sim, 
-          NaoGestante = Não)
+          NaoGestante = N?o)
 
 teste
 
