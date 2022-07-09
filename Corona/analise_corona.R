@@ -187,5 +187,10 @@ teste
 chisq.test(teste[,2:3])
 
 # Total Hospitalizados
-dados_corona_total %>% group_by(Hospitalizado) %>% count()
+teste <- dados_corona_total %>%
+  group_by(Hospitalizado, Sexo) %>% count() %>%
+  spread(key = Sexo, value = n)
 
+chisq.test(teste[,2:3])
+
+teste %>% mutate()
